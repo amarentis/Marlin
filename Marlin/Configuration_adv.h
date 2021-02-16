@@ -144,7 +144,7 @@
   #define CHAMBER_MAXTEMP           110
   #define TEMP_CHAMBER_HYSTERESIS     1   // (°C) Temperature proximity considered "close enough" to the target
   //#define CHAMBER_LIMIT_SWITCHING
-  //#define HEATER_CHAMBER_PIN      P2_04   // Chamber heater on/off pin
+  #define HEATER_CHAMBER_PIN      P2_04   // Chamber heater on/off pin
   //#define HEATER_CHAMBER_INVERTING false
 
   //#define CHAMBER_FAN               // Enable a fan on the chamber
