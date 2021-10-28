@@ -84,7 +84,7 @@
 
 #if defined(SERIAL_USB) && !HAS_SD_HOST_DRIVE
   USBSerial SerialUSB;
-  DefaultSerial MSerial(true, SerialUSB);
+  DefaultSerial1 MSerial0(true, SerialUSB);
 
   #if ENABLED(EMERGENCY_PARSER)
     #include "../libmaple/usb/stm32f1/usb_reg_map.h"
@@ -107,7 +107,7 @@
       len = usb_cdcacm_peek(buf, total);
 
       for (uint32 i = 0; i < len; i++)
-        emergency_parser.update(MSerial.emergency_state, buf[i + total - len]);
+        emergency_parser.update(MSerial0.emergency_state, buf[i + total - len]);
     }
   #endif
 #endif
@@ -131,6 +131,9 @@ const uint8_t adc_pins[] = {
   #endif
   #if HAS_TEMP_CHAMBER
     TEMP_CHAMBER_PIN,
+  #endif
+  #if HAS_TEMP_COOLER
+    TEMP_COOLER_PIN,
   #endif
   #if HAS_TEMP_ADC_1
     TEMP_1_PIN,
@@ -188,6 +191,9 @@ enum TempPinIndex : char {
   #endif
   #if HAS_TEMP_CHAMBER
     TEMP_CHAMBER,
+  #endif
+  #if HAS_TEMP_COOLER
+    TEMP_COOLER_PIN,
   #endif
   #if HAS_TEMP_ADC_1
     TEMP_1,
@@ -247,7 +253,7 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
   reg_value &= ~(SCB_AIRCR_VECTKEY_Msk | SCB_AIRCR_PRIGROUP_Msk);             /* clear bits to change               */
   reg_value  =  (reg_value                                 |
                 ((uint32_t)0x5FA << SCB_AIRCR_VECTKEY_Pos) |
-                (PriorityGroupTmp << 8));                                     /* Insert write key and priorty group */
+                (PriorityGroupTmp << 8));                                     /* Insert write key & priority group  */
   SCB->AIRCR =  reg_value;
 }
 
@@ -287,7 +293,7 @@ void HAL_init() {
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
     delay(1000);                                         // Give OS time to notice
-    OUT_WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
+    WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
   #endif
   TERN_(POSTMORTEM_DEBUGGING, install_min_serial());    // Install the minimal serial handler
 }
@@ -385,6 +391,9 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #if HAS_TEMP_CHAMBER
       case TEMP_CHAMBER_PIN: pin_index = TEMP_CHAMBER; break;
     #endif
+    #if HAS_TEMP_COOLER
+      case TEMP_COOLER_PIN: pin_index = TEMP_COOLER; break;
+    #endif
     #if HAS_TEMP_ADC_1
       case TEMP_1_PIN: pin_index = TEMP_1; break;
     #endif
@@ -428,7 +437,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
       case POWER_MONITOR_VOLTAGE_PIN: pin_index = POWERMON_VOLTS; break;
     #endif
   }
-  HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2) & 0x3FF; // shift to get 10 bits only.
+  HAL_adc_result = HAL_adc_results[(int)pin_index] >> (12 - HAL_ADC_RESOLUTION); // shift out unused bits
 }
 
 uint16_t HAL_adc_get_result() { return HAL_adc_result; }
@@ -444,6 +453,8 @@ void analogWrite(pin_t pin, int pwm_val8) {
     analogWrite(uint8_t(pin), pwm_val8);
 }
 
-void flashFirmware(const int16_t) { nvic_sys_reset(); }
+void HAL_reboot() { nvic_sys_reset(); }
+
+void flashFirmware(const int16_t) { HAL_reboot(); }
 
 #endif // __STM32F1__
