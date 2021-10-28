@@ -51,15 +51,15 @@
 
 extern portMUX_TYPE spinlock;
 
-#define MYSERIAL0 flushableSerial
+#define MYSERIAL1 flushableSerial
 
 #if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #if ENABLED(ESP3D_WIFISUPPORT)
-    typedef ForwardSerial0Type< decltype(Serial2Socket) > DefaultSerial;
-    extern DefaultSerial MSerial;
-    #define MYSERIAL1 MSerial
+    typedef ForwardSerial1Class< decltype(Serial2Socket) > DefaultSerial1;
+    extern DefaultSerial1 MSerial0;
+    #define MYSERIAL2 MSerial0
   #else
-    #define MYSERIAL1 webSocketSerial
+    #define MYSERIAL2 webSocketSerial
   #endif
 #endif
 
@@ -101,20 +101,18 @@ void HAL_clear_reset_source();
 // reset reason
 uint8_t HAL_get_reset_source();
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot();
 
 void _delay_ms(int delay);
 
+#pragma GCC diagnostic push
 #if GCC_VERSION <= 50000
-  #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 int freeMemory();
 
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic pop
-#endif
+#pragma GCC diagnostic pop
 
 void analogWrite(pin_t pin, int value);
 
@@ -141,6 +139,10 @@ void HAL_adc_start_conversion(const uint8_t adc_pin);
 void HAL_idletask();
 inline void HAL_init() {}
 void HAL_init_board();
+
+#if ENABLED(USE_ESP32_EXIO)
+  void Write_EXIO(uint8_t IO, uint8_t v);
+#endif
 
 //
 // Delay in cycles (used by DELAY_NS / DELAY_US)
