@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_LCD_MENU && HAS_TEMPERATURE
+#if HAS_MARLINUI_MENU && HAS_TEMPERATURE
 
 #include "menu_item.h"
 #include "../../module/temperature.h"
@@ -69,7 +69,7 @@ void Temperature::lcd_preheat(const uint8_t e, const int8_t indh, const int8_t i
   ui.return_to_status();
 }
 
-#if PREHEAT_COUNT
+#if HAS_PREHEAT
 
   #if HAS_TEMP_HOTEND
     inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, -1); }
@@ -138,13 +138,12 @@ void Temperature::lcd_preheat(const uint8_t e, const int8_t indh, const int8_t i
 
   #endif // HAS_MULTI_HOTEND || HAS_HEATED_BED
 
-#endif // PREHEAT_COUNT
+#endif // HAS_PREHEAT
 
 #if HAS_TEMP_HOTEND || HAS_HEATED_BED
 
   void lcd_cooldown() {
-    thermalManager.zero_fan_speeds();
-    thermalManager.disable_all_heaters();
+    thermalManager.cooldown();
     ui.return_to_status();
   }
 
@@ -263,7 +262,7 @@ void menu_temperature() {
 
   #endif // HAS_FAN
 
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     //
     // Preheat for all Materials
     //
@@ -308,4 +307,4 @@ void menu_temperature() {
 
 #endif
 
-#endif // HAS_LCD_MENU && HAS_TEMPERATURE
+#endif // HAS_MARLINUI_MENU && HAS_TEMPERATURE

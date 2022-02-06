@@ -705,7 +705,7 @@ namespace ExtUI {
     uint8_t getIDEX_Mode() { return dual_x_carriage_mode; }
   #endif
 
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     uint16_t getMaterial_preset_E(const uint16_t index) { return ui.material_preset[index].hotend_temp; }
     #if HAS_HEATED_BED
       uint16_t getMaterial_preset_B(const uint16_t index) { return ui.material_preset[index].bed_temp; }
@@ -1034,13 +1034,7 @@ namespace ExtUI {
 
   void setFeedrate_percent(const_float_t value) { feedrate_percentage = constrain(value, 10, 500); }
 
-  void coolDown() {
-    #if HAS_HOTEND
-      HOTEND_LOOP() thermalManager.setTargetHotend(0, e);
-    #endif
-    TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(0));
-    TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-  }
+  void coolDown() { thermalManager.cooldown(); }
 
   bool awaitingUserConfirm() {
     return TERN0(HAS_RESUME_CONTINUE, wait_for_user) || getHostKeepaliveIsPaused();
@@ -1150,7 +1144,7 @@ namespace ExtUI {
 
 // At the moment we hook into MarlinUI methods, but this could be cleaned up in the future
 
-void MarlinUI::init() { ExtUI::onStartup(); }
+void MarlinUI::init_lcd() { ExtUI::onStartup(); }
 
 void MarlinUI::update() { ExtUI::onIdle(); }
 

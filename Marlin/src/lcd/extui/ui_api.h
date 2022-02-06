@@ -148,7 +148,7 @@ namespace ExtUI {
 
   uint32_t getProgress_seconds_elapsed();
 
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     uint16_t getMaterial_preset_E(const uint16_t);
     #if HAS_HEATED_BED
       uint16_t getMaterial_preset_B(const uint16_t);
@@ -196,7 +196,7 @@ namespace ExtUI {
   #endif
 
   inline void simulateUserClick() {
-    #if ANY(HAS_LCD_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
+    #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
       ui.lcd_clicked = true;
     #endif
   }
