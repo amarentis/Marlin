@@ -1,0 +1,11 @@
+; Macros
+; M810 Home XY and deploy probe
+M810 G28 XY|G1 X20 Y15 F4200|G1 X5.5 Y15 F1200|G1 X5.5 Y55 F3600
+
+; M811 Home XY and stow probe
+M811 G28 XY|G1 X5.5 Y55 F4200|G1 X5.5 Y15 F1200|G1 X20 Y15 F3600
+
+; M812 Stow probe without homing
+M812 G1 X5.5 Y55 F4200|G1 X5.5 Y15 F1200|G1 X20 Y15 F360
+
+M117 Macros loaded
